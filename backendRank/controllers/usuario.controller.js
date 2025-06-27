@@ -2,9 +2,11 @@
 const db = require("../models");
 const { isRequestValid, sendError500 } = require("../utils/request.utils");
 
-// Helper para obtener usuario o devolver 404
+// Helper para obtener usuario sin contraseña
 async function getUsuarioOr404(id, res) {
-    const usuario = await db.Usuario.findByPk(id);
+    const usuario = await db.Usuario.findByPk(id, {
+        attributes: { exclude: ['password'] } // Excluir contraseña
+    });
     if (!usuario) {
         res.status(404).json({ msg: "Usuario no encontrado" });
         return null;
@@ -39,24 +41,29 @@ exports.getUsuarioById = async (req, res) => {
     }
 };
 
-// 3. Crear un nuevo usuario
 exports.createUsuario = async (req, res) => {
-    // Campos requeridos
-    const requiredFields = ["nombre", "tipo"];
+    const requiredFields = ["nombre", "tipo", "email", "password"];
     if (!isRequestValid(requiredFields, req.body, res)) return;
 
     try {
-        const { nombre, tipo, email, puntos, nivel } = req.body;
+        const { nombre, tipo, email, password, puntos, nivel } = req.body;
+
+        // Cifrar contraseña
+        const hashedPassword = await bcrypt.hash(password, 10);
 
         const nuevoUsuario = await db.Usuario.create({
             nombre,
             tipo,
-            email: email || null,
+            email,
+            password: hashedPassword,
             puntos: puntos || 0,
             nivel: nivel || "Semilla"
         });
 
-        res.status(201).json(nuevoUsuario);
+        res.status(201).json({
+            ...nuevoUsuario.toJSON(),
+            password: undefined // No devolver la contraseña
+        });
     } catch (error) {
         sendError500(res, error);
     }
@@ -75,9 +82,18 @@ exports.updateUsuario = async (req, res) => {
         if (req.body.email) usuario.email = req.body.email;
         if (req.body.puntos) usuario.puntos = req.body.puntos;
         if (req.body.nivel) usuario.nivel = req.body.nivel;
+        
+        // Actualizar contraseña si se proporciona
+        if (req.body.password) {
+            usuario.password = await bcrypt.hash(req.body.password, 10);
+        }
 
         await usuario.save();
-        res.json(usuario);
+        
+        // No devolver la contraseña en la respuesta
+        const responseUser = usuario.toJSON();
+        delete responseUser.password;
+        res.json(responseUser);
     } catch (error) {
         sendError500(res, error);
     }
@@ -136,6 +152,7 @@ exports.getAccionesUsuario = async (req, res) => {
     const usuarioId = req.params.id;
     try {
         const usuario = await getUsuarioOr404(usuarioId, res);
+    
         if (!usuario) return;
 
         const acciones = await db.AccionEcologica.findAll({

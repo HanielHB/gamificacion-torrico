@@ -4,7 +4,7 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
     port: dbConfig.PORT,
-    dialect: dbConfig.dialect,
+    dialect: "mysql",
     define: {
         timestamps: true,
         underscored: true,
@@ -17,7 +17,7 @@ db.sequelize = sequelize;
 
 // Modelos
 db.Usuario = require("./usuario.model.js")(sequelize, Sequelize);
-db.AccionEcologica = require("./accion_ecologica.model.js")(sequelize, Sequelize);
+db.AccionEcologica = require("./accionEcologica.model.js")(sequelize, Sequelize);
 db.Temporada = require("./temporada.model.js")(sequelize, Sequelize);
 db.Recompensa = require("./recompensa.model.js")(sequelize, Sequelize);
 db.Ranking = require("./ranking.model.js")(sequelize, Sequelize);

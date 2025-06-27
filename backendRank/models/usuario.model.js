@@ -32,7 +32,11 @@ module.exports = (sequelize, Sequelize) => {
                 validate: {
                     isEmail: true
                 }
-            }
+            },
+            password: {
+                type: Sequelize.STRING,
+                allowNull: false
+            },
         },
         {
             timestamps: true,

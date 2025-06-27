@@ -41,28 +41,49 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// 1. Importar la función para crear el primer admin
+const createFirstAdmin = require('./scripts/createFirstAdmin');
+
 // Importar y sincronizar la base de datos
 const db = require("./models");
-db.sequelize.sync().then(() => {
-     //force: true // drop tables and recreate
-    console.log("DB sincronizada correctamente");
-});
 
-// Middleware para validación de errores en JSON
-app.use((error, req, res, next) => {
-    if (error instanceof SyntaxError) {
-        res.status(400).json({ msg: 'Error en el JSON' });
-    } else {
-        next();
-    }
-});
+// 2. Sincronizar DB y luego crear admin
+db.sequelize.sync({ force: false }) // force: true solo en desarrollo para resetear
+    .then(async () => {
+        console.log("✅ DB sincronizada correctamente");
+        
+        // 3. Crear admin solo si no existe
+        try {
+        await createFirstAdmin();
+            console.log("🛡️  Verificación de admin completada");
+        } catch (error) {
+            console.error("⚠️  Error al crear admin inicial:", error);
+        }
+    })
+    .catch(err => {
+        console.error("❌ Error al sincronizar DB:", err);
+    });
 
-// Importar rutas
-require('./routes')(app);
+    // Middleware para validación de errores en JSON
+    app.use((error, req, res, next) => {
+        if (error instanceof SyntaxError) {
+            res.status(400).json({ msg: 'Error en el JSON' });
+        } else {
+            next();
+        }
+    });
 
+    // Importar rutas
+    require('./routes')(app);
 
+    // 4. Manejo de errores global
+    app.use((err, req, res, next) => {
+        console.error(err.stack);
+        res.status(500).json({ msg: 'Error interno del servidor' });
+    });
 
 // Iniciar el servidor
-app.listen(3000, () => {
-    console.log('Servidor corriendo en http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
