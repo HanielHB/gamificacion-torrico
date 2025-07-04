@@ -51,7 +51,6 @@ const db = require("./models");
 db.sequelize.sync({ force: false }) // force: true solo en desarrollo para resetear
     .then(async () => {
         console.log("✅ DB sincronizada correctamente");
-        
         // 3. Crear admin solo si no existe
         try {
         await createFirstAdmin();

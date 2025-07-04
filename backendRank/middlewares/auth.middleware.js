@@ -4,7 +4,7 @@ const SECRET_KEY = process.env.SECRET_KEY || "ecowarriors_secret";
 // Middleware para verificar token
 exports.verifyToken = (req, res, next) => {
     const token = req.headers['x-access-token'] || req.headers['authorization'];
-    
+
     if (!token) {
         return res.status(401).json({ msg: "Acceso denegado: token no proporcionado" });
     }

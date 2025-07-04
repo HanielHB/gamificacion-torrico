@@ -13,11 +13,13 @@ import ListTemporada from './pages/temporada/ListTemporada';
 import FormTemporada from './pages/temporada/FormTemporada';
 import ListRecompensa from './pages/recompensa/ListRecompensa';
 import FormRecompensa from './pages/recompensa/FormRecompensa';
+import ListRecompensasCanjeables from './pages/canje/ListRecompensasCanjeables';
 import ListAccionEcologica from './pages/accion/ListAccionEcologica';
 import FormAccionEcologica from './pages/accion/FormAccionEcologica';
 import ListUsuarios from './pages/usuario/ListUsuarios';
 import FormUsuario from './pages/usuario/FormUsuario';
 import TopUsuarios from './pages/ranking/TopUsuarios';
+
 
 const router = createBrowserRouter([
   {
@@ -56,6 +58,9 @@ const router = createBrowserRouter([
         path: "recompensas/editar/:id",
         element: <FormRecompensa />
       },
+      { path: "recompensas/canjeables",
+        element: <ListRecompensasCanjeables />
+      },
       {
         path: "acciones",
         element: <ListAccionEcologica />
@@ -83,7 +88,8 @@ const router = createBrowserRouter([
       {
         path: "ranking",
         element: <TopUsuarios />
-      }
+      },
+
     ]
   }
 ]);

@@ -1,5 +1,6 @@
 // controllers/usuario.controller.js
 const db = require("../models");
+const bcrypt = require('bcrypt');
 const { isRequestValid, sendError500 } = require("../utils/request.utils");
 
 // Helper para obtener usuario sin contraseña
@@ -82,14 +83,14 @@ exports.updateUsuario = async (req, res) => {
         if (req.body.email) usuario.email = req.body.email;
         if (req.body.puntos) usuario.puntos = req.body.puntos;
         if (req.body.nivel) usuario.nivel = req.body.nivel;
-        
+
         // Actualizar contraseña si se proporciona
         if (req.body.password) {
             usuario.password = await bcrypt.hash(req.body.password, 10);
         }
 
         await usuario.save();
-        
+
         // No devolver la contraseña en la respuesta
         const responseUser = usuario.toJSON();
         delete responseUser.password;

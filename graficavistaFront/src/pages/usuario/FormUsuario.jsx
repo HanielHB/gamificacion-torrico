@@ -62,7 +62,7 @@ const FormUsuario = () => {
                 }
                 await axios.put(`http://localhost:3000/usuarios/${id}`, updateData, { headers });
             } else {
-                await axios.post('http://localhost:3000/usuarios', formData, { headers });
+                await axios.post('http://localhost:3000/usuarios/', formData, { headers });
             }
 
             navigate('/dashboard/usuarios');
@@ -121,8 +121,8 @@ const FormUsuario = () => {
                                 onChange={handleChange}
                                 required
                             >
-                                <option value="usuario">Usuario</option>
-                                <option value="admin">Administrador</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="empleado">Empleado</option>
                             </Form.Select>
                         </Form.Group>
 

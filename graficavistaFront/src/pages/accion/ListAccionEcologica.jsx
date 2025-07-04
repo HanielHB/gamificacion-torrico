@@ -1,37 +1,35 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  Container, 
-  Row, 
-  Col, 
-  Table, 
-  Button, 
-  Modal, 
-  Alert,
-  Spinner
+    Container, 
+    Row, 
+    Col, 
+    Table, 
+    Button, 
+    Modal, 
+    Alert,
+    Spinner
 } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaEye, FaUser, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye, FaUser, FaPlus, FaLeaf } from 'react-icons/fa';
 import { useOutletContext } from 'react-router-dom';
 import moment from 'moment';
 import 'moment/locale/es';
 
 const ListAccionEcologica = () => {
-    const { handleShowFormAccion } = useOutletContext();
+    const { handleShowFormAccion, userRole } = useOutletContext();
     const [acciones, setAcciones] = useState([]);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedAccion, setSelectedAccion] = useState(null);
-    const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(true);
     const [usuarios, setUsuarios] = useState({}); // Mapa de usuarios por ID
 
     useEffect(() => {
         fetchAcciones();
         fetchUsuarios();
-        const user = JSON.parse(localStorage.getItem('usuario'));
-        setUserRole(user?.tipo);
+
     }, []);
 
     const fetchAcciones = async () => {
@@ -56,7 +54,7 @@ const ListAccionEcologica = () => {
             const response = await axios.get('http://localhost:3000/usuarios', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
+
             // Crear un mapa de usuarios por ID para acceso rápido
             const usuariosMap = {};
             response.data.forEach(usuario => {
@@ -105,7 +103,7 @@ const ListAccionEcologica = () => {
                     {error}
                 </Alert>
             )}
-            
+
             {success && (
                 <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
                     {success}
@@ -113,29 +111,26 @@ const ListAccionEcologica = () => {
             )}
 
             <Row className="mb-4 align-items-center">
-                <Col>
-                    <h2 className="d-flex align-items-center">
-                        <FaUser className="me-2 text-primary" /> 
-                        Lista de Acciones Ecológicas
-                    </h2>
-                    <p className="text-muted">
-                        Todas las acciones registradas en el sistema
-                    </p>
+            <Col>
+                <h2 className="d-flex align-items-center">
+                <FaLeaf className="me-2 text-success" />
+                Lista de Acciones Ecológicas
+                </h2>
+                <p className="text-muted">Todas las acciones registradas en el sistema</p>
+            </Col>
+
+            {userRole === 'empleado' && (
+                <Col xs="auto">
+                <Button
+                    variant="success"
+                    onClick={() => handleShowFormAccion()}
+                    className="d-flex align-items-center"
+                >
+                    <FaPlus className="me-2" />
+                    Nueva Acción Ecológica
+                </Button>
                 </Col>
-                
-                {/* Botón de Nueva Acción Ecológica - SOLUCIÓN AQUÍ */}
-                {userRole === 'empleado' && (
-                    <Col xs="auto">
-                        <Button 
-                            variant="success" 
-                            onClick={() => handleShowFormAccion()}
-                            className="d-flex align-items-center"
-                        >
-                            <FaPlus className="me-2" />
-                            Nueva Acción Ecológica
-                        </Button>
-                    </Col>
-                )}
+            )}
             </Row>
 
             {loading ? (
@@ -161,56 +156,49 @@ const ListAccionEcologica = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {acciones.map((accion) => (
+                            {acciones.map(accion => (
                                 <tr key={accion.id}>
-                                    <td>
-                                        <div className="d-flex align-items-center">
-                                            <FaUser className="me-2 text-muted" />
-                                            {getNombreUsuario(accion.usuario_id)}
-                                        </div>
-                                    </td>
-                                    <td>{accion.tipo}</td>
-                                    <td>{accion.detalle || 'Sin detalles'}</td>
-                                    <td className="fw-bold text-success">
-                                        +{accion.puntos_otorgados}
-                                    </td>
-                                    <td>
-                                        {moment(accion.fecha).format('DD/MM/YYYY HH:mm')}
-                                    </td>
-                                    <td>
+                                <td>{getNombreUsuario(accion.usuario_id)}</td>
+                                <td>{accion.tipo}</td>
+                                <td>{accion.detalle || '–'}</td>
+                                <td>+{accion.puntos_otorgados}</td>
+                                <td>{moment(accion.fecha).format('DD/MM/YYYY HH:mm')}</td>
+                                <td>
+                                    <Button
+                                    variant="info"
+                                    size="sm"
+                                    className="me-2"
+                                    onClick={() => handleShowDetails(accion)}
+                                    title="Ver detalles"
+                                    >
+                                    <FaEye />
+                                    </Button>
+
+                                    {userRole === 'empleado' && (
+                                    <>
+                                        {/* Editar */}
                                         <Button
-                                            variant="info"
-                                            size="sm"
-                                            className="me-2"
-                                            onClick={() => handleShowDetails(accion)}
-                                            title="Ver detalles"
+                                        variant="warning"
+                                        size="sm"
+                                        className="me-2"
+                                        onClick={() => handleShowFormAccion(accion.id)}
+                                        title="Editar acción"
                                         >
-                                            <FaEye />
+                                        <FaEdit />
                                         </Button>
-                                        
-                                        {/* Botones de Editar y Eliminar - SOLUCIÓN AQUÍ */}
-                                        {userRole === 'empleado' && (
-                                            <>
-                                                <Button
-                                                    variant="warning"
-                                                    size="sm"
-                                                    className="me-2"
-                                                    onClick={() => handleShowFormAccion(accion.id)}
-                                                    title="Editar"
-                                                >
-                                                    <FaEdit />
-                                                </Button>
-                                                <Button
-                                                    variant="danger"
-                                                    size="sm"
-                                                    onClick={() => handleShowDelete(accion)}
-                                                    title="Eliminar"
-                                                >
-                                                    <FaTrash />
-                                                </Button>
-                                            </>
-                                        )}
-                                    </td>
+
+                                        {/* Eliminar */}
+                                        <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => handleShowDelete(accion)}
+                                        title="Eliminar acción"
+                                        >
+                                        <FaTrash />
+                                        </Button>
+                                    </>
+                                    )}
+                                </td>
                                 </tr>
                             ))}
                         </tbody>

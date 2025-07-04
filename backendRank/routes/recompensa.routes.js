@@ -11,6 +11,15 @@ module.exports = app => {
     // Asignar recompensa a un usuario
     router.post('/asignar', [verifyToken], controller.asignarRecompensa);
 
+    router.post("/",[ verifyToken, isAdmin ],controller.createRecompensa);
+
+    router.post(
+    '/canjear',
+    verifyToken,
+    controller.canjearRecompensa
+    );
+
+
     // Obtener recompensas de un usuario
     router.get('/usuario/:id', [verifyToken], controller.getRecompensasUsuario);
 

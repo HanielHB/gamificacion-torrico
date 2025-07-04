@@ -8,6 +8,9 @@ module.exports = app => {
     // Listar todos los usuarios
     router.get('/', [verifyToken], controller.listUsuarios);
 
+    router.post('/', [verifyToken], controller.createUsuario);
+
+
     // Obtener un usuario por ID
     router.get('/:id', [verifyToken], controller.getUsuarioById);
 

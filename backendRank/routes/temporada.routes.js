@@ -15,7 +15,7 @@ module.exports = app => {
     router.post('/', [verifyToken, isAdmin], controller.createTemporada);
 
     // Finalizar temporada y generar ranking (solo admin)
-    router.post('/:id/finalizar', [verifyToken, isAdmin], controller.finalizarTemporada);
+    router.post('/:id/finalizar', controller.finalizarTemporada);
 
     // Obtener ranking de una temporada
     router.get('/:id/ranking', controller.getRankingTemporada);

@@ -58,13 +58,13 @@ db.Usuario.belongsToMany(db.Recompensa, {
     through: "usuario_recompensa",
     foreignKey: "usuario_id",
     as: "recompensas",
-    timestamps: false
+    timestamps: true
 });
 db.Recompensa.belongsToMany(db.Usuario, {
     through: "usuario_recompensa",
     foreignKey: "recompensa_id",
     as: "usuarios",
-    timestamps: false
+    timestamps: true
 });
 
 // 4. Relación Ranking -> Usuario

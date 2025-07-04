@@ -9,9 +9,9 @@ module.exports = (sequelize, Sequelize) => {
             },
             tipo: {
                 type: Sequelize.ENUM(
-                    "bolsa_reutilizable", 
-                    "reciclaje_plastico", 
-                    "compra_local", 
+                    "bolsa_reutilizable",
+                    "reciclaje_plastico",
+                    "compra_local",
                     "taller_ecologico",
                     "desafio_comunitario"
                 ),

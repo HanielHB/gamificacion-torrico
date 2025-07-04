@@ -1,6 +1,7 @@
 // controllers/temporada.controller.js
 const db = require("../models");
 const { isRequestValid, sendError500 } = require("../utils/request.utils");
+const { Op } = require('sequelize');
 
 // Helper para obtener temporada o devolver 404
 async function getTemporadaOr404(id, res) {
@@ -30,7 +31,7 @@ exports.getTemporadaById = async (req, res) => {
     try {
         const temporada = await getTemporadaOr404(id, res);
         if (!temporada) return;
-        
+
         res.json(temporada);
     } catch (error) {
         sendError500(res, error);
@@ -90,7 +91,7 @@ exports.finalizarTemporada = async (req, res) => {
         // 3. Guardar ranking en base de datos
         const rankingRecords = [];
         let puesto = 1;
-        
+
         for (const item of rankingData) {
             let insignia = null;
             if (puesto === 1) insignia = "Sol";
@@ -119,18 +120,20 @@ exports.finalizarTemporada = async (req, res) => {
     }
 };
 
-// 5. Obtener ranking de una temporada
 exports.getRankingTemporada = async (req, res) => {
     const temporadaId = req.params.id;
     try {
         const ranking = await db.Ranking.findAll({
-            where: { temporada_id: temporadaId },
-            order: [['puesto', 'ASC']],
-            include: [{
-                model: db.Usuario,
-                as: 'usuario',
-                attributes: ['id', 'nombre', 'nivel']
-            }]
+        where: { temporada_id: temporadaId },
+        order: [['puesto', 'ASC']],
+        include: [{
+            model: db.Usuario,
+            as: 'usuario',
+            // solo traemos id, nombre y nivel
+            attributes: ['id', 'nombre', 'nivel'],
+            // y filtramos para que tipo !== 'admin'
+            where: { tipo: { [Op.ne]: 'admin' } }
+        }]
         });
 
         res.json(ranking);
